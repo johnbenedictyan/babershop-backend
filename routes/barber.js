@@ -11,10 +11,6 @@ router.get('/kick-from-queue', (req, res, next) => {
 
 });
 
-router.get('/kick-from-queue', (req, res, next) => {
-
-});
-
 router.get('/close-queue',(req,res,next) => {
 
 });
@@ -31,15 +27,7 @@ router.get('/open-shop', (req, res, next) => {
 
 });
 
-router.get('/sign-in', (req, res, next) => {
-
-});
-
 router.post('/sign-in', (req, res, next) => {
-
-});
-
-router.get('/sign-up', (req, res, next) => {
 
 });
 
@@ -47,6 +35,6 @@ router.post('/sign-up', (req, res, next) => {
 
 });
 
-router.get('/sign-out', (req, res, next) => {
+router.post('/sign-out', (req, res, next) => {
 
 });
