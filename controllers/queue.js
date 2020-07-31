@@ -131,7 +131,7 @@ async function leaveQueue(uID,barberid){
     return rObj
 }
 
-async function viewQueue(uID, barberid){
+async function viewQueue(uID, barberid, userType){
     let db = mongo.getDb();
     let barber = barberCheck(barberid);
     let rObj;
@@ -140,28 +140,25 @@ async function viewQueue(uID, barberid){
         let entry;
         // let entry = queueEntryCheck()
 
-        db
-        .collection('barbers')
-        .find({
+        db.collection('barbers').find({
             barberid
-        })
-        .sort({
+        }).sort({
             'time': 1
-        })
-        .toArray()
-        .then((data) => {
+        }).toArray().then((data) => {
             if (data) {
                 let queueObj;
                 // Check to see if the user is in the queue and to edit the queue payload
                 if (entry) {
                     queueObj = new QueueObject(
                         data,
+                        userType,
                         true,
                         2
                     )
                 } else {
                     queueObj = new QueueObject(
                         data,
+                        userType,
                         false
                     )
                 }
