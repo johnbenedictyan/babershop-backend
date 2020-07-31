@@ -22,10 +22,11 @@ class ReturnObject {
 }
 
 class QueueObject {
-    constructor(queue, userInQueue, userPosition){
+    constructor(queue, userType, userInQueue, userPosition){
         this.queue = queue;
         this.userInQueue = userInQueue;
         this.userPosition = userPosition;
+        this.userType = userType
     }
 
     get userInQueue() {
