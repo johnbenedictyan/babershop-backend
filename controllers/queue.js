@@ -1,6 +1,6 @@
 const mongo = require('../mongoUtil');
 const ObjectId = require('mongodb').ObjectId
-const { ReturnObject } = require('./constants');
+const { ReturnObject, QueueObject } = require('./constants');
 
 function barberCheck(barberid){
     let db = mongo.getDb;
@@ -39,34 +39,47 @@ async function joinQueue(name,barberid){
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
-
-        let newEntry = {
-            name,
-            barberid,
-            'uID': '<queueEntryCheck output of the x509 cert value>',
-            'time': '<current time>'
-        }
-
-        db
-        .collection('barbers')
-        .insertOne(newEntry)
-        .then((id) => {
-            if (id) {
-                rObj = new ReturnObject(
-                    true,
-                    `You have joined ${barber.name}'s queue`
-                )
-            } else {
-                rObj = new ReturnObject(
-                    false,
-                    'An error has occured when trying to join the queue'
-                )
+        // TODO: Add a uID check function to check if the uID exists.
+        
+        if (condition) {
+            rObj = new ReturnObject(
+                200,
+                {
+                    'message': `You have joined ${barber.name}'s queue`
+                }
+            )
+        } else {
+            let newEntry = {
+                name,
+                barberid,
+                'uID': '<queueEntryCheck output of the x509 cert value>',
+                'time': '<current time>'
             }
-        });
+
+            db.collection('barbers').insertOne(newEntry).then((id) => {
+                if (id) {
+                    rObj = new ReturnObject(
+                        200,
+                        {
+                            'message': `You have joined ${barber.name}'s queue`
+                        }
+                    )
+                } else {
+                    rObj = new ReturnObject(
+                        500,
+                        {
+                            'message': 'An error has occured when trying to join the queue'
+                        }
+                    )
+                }
+            });
+        }
     } else {
         rObj = new ReturnObject(
-            false,
-            'This barber does not exist'
+            404,
+            {
+                'message': 'This barber does not exist'
+            }
         )
     }
     return rObj
@@ -78,30 +91,41 @@ async function leaveQueue(uID,barberid){
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
-
-        db
-        .collection('barbers')
-        .deleteOne({
-            uID,
-            barberid
-        })
-        .then((data) => {
-            if (data==1) {
-                rObj = new ReturnObject(
-                    true,
-                    `You have left ${barber.name}'s queue`
-                )
-            } else {
-                rObj = new ReturnObject(
-                    false,
-                    'An error has occured when trying to leave the queue'
-                )
-            }
-        });
+        if (condition) {
+            db.collection('barbers').deleteOne({
+                uID,
+                barberid
+            }).then((data) => {
+                if (data == 1) {
+                    rObj = new ReturnObject(
+                        200,
+                        {
+                            'message': `You have left ${barber.name}'s queue`
+                        }
+                    )
+                } else {
+                    rObj = new ReturnObject(
+                        500,
+                        {
+                            'message': 'An error has occured when trying to leave the queue'
+                        }
+                    )
+                }
+            });
+        } else {
+            rObj = new ReturnObject(
+                200,
+                {
+                    'message': `You have left ${barber.name}'s queue`
+                }
+            )
+        }
     } else {
-        rOrObj = new ReturnObject(
-            false,
-            'This barber does not exist'
+        rObj = new ReturnObject(
+            404,
+            {
+                'message': 'This barber does not exist'
+            }
         )
     }
     return rObj
@@ -113,6 +137,8 @@ async function viewQueue(uID, barberid){
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
+        let entry;
+        // let entry = queueEntryCheck()
 
         db
         .collection('barbers')
@@ -125,23 +151,49 @@ async function viewQueue(uID, barberid){
         .toArray()
         .then((data) => {
             if (data) {
+                let queueObj;
+                // Check to see if the user is in the queue and to edit the queue payload
+                if (entry) {
+                    queueObj = new QueueObject(
+                        data,
+                        true,
+                        2
+                    )
+                } else {
+                    queueObj = new QueueObject(
+                        data,
+                        false
+                    )
+                }
                 rObj = new ReturnObject(
-                    true,
-                    `You have successfully accessed ${baber.name}'s queue`,
-                    data
+                    200,
+                    {
+                        'message': `You have successfully accessed ${baber.name}'s queue`,
+                        'data': queueObj
+                    }
                 )
             } else {
                 rObj = new ReturnObject(
-                    false,
-                    `An error occurred when trying to access ${baber.name}'s queue`
+                    500,
+                    {
+                        'message': `An error occurred when trying to access ${baber.name}'s queue`
+                    }
                 )
             }
         });
     } else {
         rObj = new ReturnObject(
-            false,
-            'This barber does not exist'
+            404,
+            {
+                'message': 'This barber does not exist'
+            }
         )
     }
     return rObj
 }
+
+module.exports = {
+    joinQueue,
+    leaveQueue,
+    viewQueue
+};
