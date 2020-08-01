@@ -144,18 +144,23 @@ async function addUser(username,email,password){
     return result
 }
 
-async function updateUserInfo(id,address1,address2,postalCode,operatingHours){
+async function updateUserInfo(
+    id, email, address1, address2, postalCode, operatingHours
+){
     let barber = await getUserById(id);
     let updatedBarberInfo,result;
     if (barber) {
         try {
-            updatedBarberInfo = await mongo.getDb().collection(barbersInfoCollectionName).updateOne(
+            updatedBarberInfo = await mongo.getDb().collection(
+                barbersInfoCollectionName
+            ).updateOne(
                 {
                     _id: new ObjectId(id)
                 },
                 {
                     '$set': {
-                        address1:
+                        email,
+                        address1,
                         address2,
                         postalCode,
                         operatingHours
