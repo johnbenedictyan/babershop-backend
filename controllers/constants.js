@@ -46,11 +46,15 @@ class QueueObject {
 const rootCollectionName = 'barbershop';
 const queueCollectionName = 'queue';
 const barbersCollectionName = 'barbers';
+const barbersInfoCollectionName = 'barbers-info';
+const barbersStatusCollectionName = 'barbers-status';
 
 module.exports = {
     ReturnObject,
     QueueObject,
     rootCollectionName,
     queueCollectionName,
-    barbersCollectionName
+    barbersCollectionName,
+    barbersInfoCollectionName,
+    barbersStatusCollectionName
 }
