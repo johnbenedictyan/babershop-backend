@@ -189,8 +189,112 @@ async function viewQueue(uID, barberid, userType){
     return rObj
 }
 
+async function kickFromQueue(uID, barberid) {
+    let db = mongo.getDb();
+    let barber = barberCheck(barberid);
+    let kickedCustomer, result;
+    if (barber) {
+        // TODO: Add the queueEntryCheck function here.
+        if (condition) {
+            try {
+                kickedCustomer = db.collection('barbers').deleteOne({
+                    uID,
+                    barberid
+                })
+            } catch (error) {
+                result = new ReturnObject(
+                    500,
+                    {
+                        'message': 'An error has occurred when trying to kick this customer from the queue'
+                    }
+                )
+            }
+            if (kickedCustomer) {
+                result = new ReturnObject(
+                    200,
+                    {
+                        'message': 'This user has been kicked from the queue'
+                    }
+                )
+            } else {
+                result = new ReturnObject(
+                    500,
+                    {
+                        'message': 'An error has occurred when trying to kick this customer from the queue'
+                    }
+                )
+            }
+        } else {
+            result = new ReturnObject(
+                404,
+                {
+                    'message': 'This user was not in the queue'
+                }
+            )
+        }
+    } else {
+        result = new ReturnObject(
+            404,
+            {
+                'message': 'This barber does not exist'
+            }
+        )
+    }
+    return result
+}
+
+async function closeQueue(barberid){
+    let db = mongo.getDb();
+    let barber = barberCheck(barberid);
+    let updatedBarber, result;
+    if (barber) {
+        try {
+            updatedBarber = db.collection('barbers').update(
+                { username: barber.username },
+                {
+                    '$set': {
+                        queueOpened: false
+                    }
+                }
+            )
+        } catch (error) {
+            result = new ReturnObject(
+                500,
+                {
+                    'message': 'An error has occurred when trying to close this barber\'s queue'
+                }
+            )
+        }
+        if (updatedBarber) {
+            result = new ReturnObject(
+                200,
+                {
+                    'message': 'This barber is now closed'
+                }
+            )
+        } else {
+            result = new ReturnObject(
+                500,
+                {
+                    'message': 'An error has occurred when trying to close this barber\'s queue'
+                }
+            )
+        }
+    } else {
+        result = new ReturnObject(
+            404,
+            {
+                'message': 'This barber does not exist'
+            }
+        )
+    }
+    return result
+}
+
 module.exports = {
     joinQueue,
     leaveQueue,
-    viewQueue
+    viewQueue,
+    kickFromQueue,
+    closeQueue
 };
