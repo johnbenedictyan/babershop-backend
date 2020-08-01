@@ -1,6 +1,6 @@
 const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectID;
-const { ReturnObject, barbersCollectionName } = require('./constants');
+const { ReturnObject, barbersCollectionName, barbersInfoCollectionName } = require('./constants');
 
 async function getAll(){
     let barbers, result;
@@ -144,6 +144,58 @@ async function addUser(username,email,password){
     return result
 }
 
+async function updateUserInfo(id,address1,address2,postalCode,operatingHours){
+    let barber = await getUserById(id);
+    let updatedBarberInfo,result;
+    if (barber) {
+        try {
+            updatedBarberInfo = await mongo.getDb().collection(barbersInfoCollectionName).updateOne(
+                {
+                    _id: new ObjectId(id)
+                },
+                {
+                    '$set': {
+                        address1:
+                        address2,
+                        postalCode,
+                        operatingHours
+                    }
+                }
+            )
+        } catch (error) {
+            result = new ReturnObject(
+                500,
+                {
+                    'message': 'An error has occurred when trying to update barber\'s information',
+                }
+            )
+        }
+        if (updatedBarber) {
+            result = new ReturnObject(
+                200,
+                {
+                    'message': 'Successfully updated barber\'s information',
+                }
+            )
+        } else {
+            result = new ReturnObject(
+                500,
+                {
+                    'message': 'An error has occurred when trying to update barber',
+                }
+            )
+        }
+    } else {
+        result = new ReturnObject(
+            404,
+            {
+                'message': 'This barber does not exist',
+            }
+        )
+    }
+    return result
+}
+
 async function updateUser(username, email, password) {
     let user = await getByUserName(username);
     let updatedBarber, result;
@@ -241,6 +293,7 @@ module.exports = {
     getUserById,
     getUserByUsername,
     addUser,
+    updateUserInfo,
     updateUser,
     deleteUser
 }
