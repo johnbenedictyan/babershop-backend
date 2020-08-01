@@ -42,7 +42,15 @@ class QueueObject {
     }
 }
 
+// Constant Variables
+const rootCollectionName = 'barbershop';
+const queueCollectionName = 'queue';
+const barbersCollectionName = 'barbers';
+
 module.exports = {
     ReturnObject,
-    QueueObject
+    QueueObject,
+    rootCollectionName,
+    queueCollectionName,
+    barbersCollectionName
 }
