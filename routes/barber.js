@@ -55,7 +55,7 @@ router.post('/sign-in', (req, res, next) => {
     auth(req, res, next);
 });
 
-router.post('/sign-up', (req, res, next) => {
+router.post('/sign-up', async(req, res, next) => {
     const { username, email, password} = req.body;
     let newUser = await barbers.addUser(username,email,password);
     return res.sendStatus(newUser.statusCode).json({ 'message': newUser.message });
@@ -64,4 +64,49 @@ router.post('/sign-up', (req, res, next) => {
 router.post('/sign-out', (req, res, next) => {
     req.logOut();
     res.redirect("/");
+});
+
+router.post('/info/update', async(req, res, next) => {
+    const {
+        barberId,
+        email,
+        address1,
+        address2,
+        postalCode,
+        operatingHoursMondayStart,
+        operatingHoursMondayEnd,
+        operatingHoursTuesdayStart,
+        operatingHoursTuesdayEnd,
+        operatingHoursWednesdayStart,
+        operatingHoursWednesdayEnd,
+        operatingHoursThursdayStart,
+        operatingHoursThursdayEnd,
+        operatingHoursFridayStart,
+        operatingHoursFridayEnd,
+        operatingHoursSaturdayStart,
+        operatingHoursSaturdayEnd,
+        operatingHoursSundayStart,
+        operatingHoursSundayEnd,
+        operatingHoursWeekdaySame,
+        operatingHoursWeekendSame,
+        operatingHoursPublicHolidays
+    } = req.body
+
+    let operatingHours = {
+        monday: operatingHoursMondayStart + operatingHoursMondayEnd,
+        tuesday: operatingHoursTuesdayStart + operatingHoursTuesdayEnd,
+        wednesday: operatingHoursWednesdayStart + operatingHoursWednesdayEnd,
+        thursday: operatingHoursThursdayStart + operatingHoursThursdayEnd,
+        friday: operatingHoursFridayStart + operatingHoursFridayEnd,
+        saturday: operatingHoursSaturdayStart + operatingHoursSaturdayEnd,
+        sunday: operatingHoursSundayStart + operatingHoursSundayEnd,
+        weekday: operatingHoursWeekdaySame,
+        weekend: operatingHoursWeekendSame,
+        publicHoliday: operatingHoursPublicHolidays
+    }
+
+    let updatedUserInfo = await barbers.updateUserInfo(
+        barberId, address1, address2, postalCode, operatingHours
+    );
+    return res.sendStatus(updatedUserInfo.statusCode).json({ 'message': updatedUserInfo.message });
 });
