@@ -1,12 +1,14 @@
 var express = require('express');
 var router = express.Router();
 const mongo = require('../controllers/mongo');
+const queue = require('../controllers/queue');
 const ObjectId = require('mongodb').ObjectId
 const barbers = require('../controllers/users');
 const passport = require('passport');
 
 router.get('/view-queue', (req, res, next) => {
-
+    let newQueue = queue.viewQueue(null,null,barber)
+    return res.sendStatus(newQueue.statusCode).json({ 'message': newQueue.message });
 });
 
 router.get('/kick-from-queue', (req, res, next) => {
