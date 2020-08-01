@@ -13,8 +13,10 @@ passport.deserializeUser((id, done) => {
     done(null, user);
 })
 
-passport.use(new LocalStrategy({
-},
+passport.use(new LocalStrategy(
+    {
+        
+    },
     async (username, password, done) => {
         let user = await UserModel.getUserByUsername(username)
         if (user && user.password == password) {
