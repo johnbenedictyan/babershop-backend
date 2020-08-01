@@ -1,12 +1,12 @@
 const mongo = require('../mongoUtil');
 const ObjectId = require('mongodb').ObjectId
-const { ReturnObject, QueueObject } = require('./constants');
+const { ReturnObject, QueueObject, barbersCollectionName, queueCollectionName } = require('./constants');
 
 function barberCheck(barberid){
     let db = mongo.getDb;
-    db.collection('barbers')
+    db.collection(barbersCollectionName)
     .findOne({
-        '_id': ObjectId(id)
+        '_id': ObjectId(barberid)
     })
     .toArray()
     .then((data) => {
@@ -56,7 +56,7 @@ async function joinQueue(name,barberid){
                 'time': '<current time>'
             }
 
-            db.collection('barbers').insertOne(newEntry).then((id) => {
+            db.collection(queueCollectionName).insertOne(newEntry).then((id) => {
                 if (id) {
                     rObj = new ReturnObject(
                         200,
@@ -92,7 +92,7 @@ async function leaveQueue(uID,barberid){
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
         if (condition) {
-            db.collection('barbers').deleteOne({
+            db.collection(queueCollectionName).deleteOne({
                 uID,
                 barberid
             }).then((data) => {
@@ -140,7 +140,7 @@ async function viewQueue(uID, barberid, userType){
         let entry;
         // let entry = queueEntryCheck()
 
-        db.collection('barbers').find({
+        db.collection(queueCollectionName).find({
             barberid
         }).sort({
             'time': 1
@@ -197,7 +197,7 @@ async function kickFromQueue(uID, barberid) {
         // TODO: Add the queueEntryCheck function here.
         if (condition) {
             try {
-                kickedCustomer = db.collection('barbers').deleteOne({
+                kickedCustomer = db.collection(queueCollectionName).deleteOne({
                     uID,
                     barberid
                 })
@@ -249,7 +249,7 @@ async function closeQueue(barberid){
     let updatedBarber, result;
     if (barber) {
         try {
-            updatedBarber = db.collection('barbers').update(
+            updatedBarber = db.collection(queueCollectionName).update(
                 { username: barber.username },
                 {
                     '$set': {

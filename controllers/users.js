@@ -1,11 +1,11 @@
 const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectID;
-const { ReturnObject } = require('./constants');
+const { ReturnObject, barbersCollectionName } = require('./constants');
 
 async function getAll(){
     let barbers, result;
     try {
-        barbers = await mongo.getDb().collection('barbers').find().toArray();
+        barbers = await mongo.getDb().collection(barbersCollectionName).find().toArray();
     } catch (error) {
         result = new ReturnObject(
             500,
@@ -36,7 +36,7 @@ async function getAll(){
 async function getUserById(id){
     let barber, result;
     try {
-        barber = await mongo.getDb().collection('barbers').findOne({
+        barber = await mongo.getDb().collection(barbersCollectionName).findOne({
             _id: new ObjectId(id)
         });
     } catch (error) {
@@ -69,7 +69,7 @@ async function getUserById(id){
 async function getUserByUsername(username){
     let barber, result;
     try {
-        barber = await mongo.getDb().collection('barbers').findOne({
+        barber = await mongo.getDb().collection(barbersCollectionName).findOne({
             username
         });
     } catch (error) {
@@ -104,7 +104,7 @@ async function addUser(username,email,password){
     let newBarber, result;
     if (user == null) {
         try {
-            newBarber = await mongo.getDb().collection('barbers').insertOne({
+            newBarber = await mongo.getDb().collection(barbersCollectionName).insertOne({
                 username,
                 email,
                 password
@@ -149,7 +149,7 @@ async function updateUser(username, email, password) {
     let updatedBarber, result;
     if (user) {
         try {
-            updatedBarber = await mongo.getDb().collection('barbers').updateOne(
+            updatedBarber = await mongo.getDb().collection(barbersCollectionName).updateOne(
                 { username },
                 {
                     '$set': {
@@ -198,7 +198,7 @@ async function deleteUser(id){
     let deletedBarber, result;
     if (user) {
         try {
-            deletedBarber = await mongo.getDb().collection('barbers').deleteOne({
+            deletedBarber = await mongo.getDb().collection(barbersCollectionName).deleteOne({
                 // _id: new ObjectId(id)
                 _id: user._id
             })
