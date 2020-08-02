@@ -14,24 +14,28 @@ router.post('/join-queue/:barberid', async(req, res, next) => {
     const { name } = req.body;
 
     let newEntry = await queue.joinQueue(name,barberid);
-    return res.sendStatus(newEntry.statusCode).json({'message':newEntry.message});
+    return res.sendStatus(newEntry.statusCode).json({
+        'message':newEntry.message
+    });
 });
 
 router.get('/leave-queue/:barberid', (req, res, next) => {
     const { barberid } = req.params
     const uID;
-    // TODO: X509 Cert Processing to check whether there is a valid x509 cert or sign another.
+    // TODO: X509 Cert Processing to check for or sign another valid x509 cert.
     // TODO: Extract the uID which would be the cert value
     // uID = <output of some function>
 
     let result = await queue.leaveQueue(uID,barberid)
-    return res.sendStatus(newEntry.statusCode).json({ 'message': newEntry.message });
+    return res.sendStatus(newEntry.statusCode).json({
+        'message': newEntry.message
+    });
 });
 
 router.get('/view-barbers', (req, res, next) => {
     const { barberid } = req.params
     const uID;
-    // TODO: X509 Cert Processing to check whether there is a valid x509 cert or sign another.
+    // TODO: X509 Cert Processing to check for or sign another valid x509 cert.
     // TODO: Extract the uID which would be the cert value
     // uID = <output of some function>
 

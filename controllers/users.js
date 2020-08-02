@@ -1,6 +1,8 @@
 const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectID;
-const { ReturnObject, barbersCollectionName, barbersInfoCollectionName } = require('./constants');
+const {
+    ReturnObject, barbersCollectionName, barbersInfoCollectionName
+} = require('./constants');
 
 async function getAll(){
     let barbers, result;
@@ -171,7 +173,8 @@ async function updateUserInfo(
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to update barber\'s information',
+                    'message': `An error has occurred when trying to update 
+                                barber's information`
                 }
             )
         }
@@ -179,14 +182,15 @@ async function updateUserInfo(
             result = new ReturnObject(
                 200,
                 {
-                    'message': 'Successfully updated barber\'s information',
+                    'message': `Successfully updated barber's information`
                 }
             )
         } else {
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to update barber',
+                    'message': `An error has occurred when trying to 
+                                update barber`
                 }
             )
         }
@@ -206,7 +210,9 @@ async function updateUser(username, email, password) {
     let updatedBarber, result;
     if (user) {
         try {
-            updatedBarber = await mongo.getDb().collection(barbersCollectionName).updateOne(
+            updatedBarber = await mongo.getDb().collection(
+                barbersCollectionName
+            ).updateOne(
                 { username },
                 {
                     '$set': {
@@ -220,7 +226,8 @@ async function updateUser(username, email, password) {
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to update barber',
+                    'message': `An error has occurred when trying to update 
+                                barber`
                 }
             )
         }
@@ -235,7 +242,8 @@ async function updateUser(username, email, password) {
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to update barber',
+                    'message': `An error has occurred when trying to update 
+                                barber`
                 }
             )
         }
@@ -255,7 +263,9 @@ async function deleteUser(id){
     let deletedBarber, result;
     if (user) {
         try {
-            deletedBarber = await mongo.getDb().collection(barbersCollectionName).deleteOne({
+            deletedBarber = await mongo.getDb().collection(
+                barbersCollectionName
+            ).deleteOne({
                 // _id: new ObjectId(id)
                 _id: user._id
             })
@@ -263,7 +273,8 @@ async function deleteUser(id){
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to delete barber',
+                    'message': `An error has occurred when trying to delete
+                                barber`
                 }
             )
         }
@@ -278,7 +289,8 @@ async function deleteUser(id){
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to delete barber',
+                    'message': `An error has occurred when trying to delete 
+                                barber`
                 }
             )
         }

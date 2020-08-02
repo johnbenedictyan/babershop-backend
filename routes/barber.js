@@ -8,7 +8,9 @@ const passport = require('passport');
 
 router.get('/view-queue', (req, res, next) => {
     let newQueue = queue.viewQueue(null,null,barber)
-    return res.sendStatus(newQueue.statusCode).json({ 'message': newQueue.message });
+    return res.sendStatus(newQueue.statusCode).json({
+        'message': newQueue.message
+    });
 });
 
 router.get('/kick-from-queue', (req, res, next) => {
@@ -58,7 +60,9 @@ router.post('/sign-in', (req, res, next) => {
 router.post('/sign-up', async(req, res, next) => {
     const { username, email, password} = req.body;
     let newUser = await barbers.addUser(username,email,password);
-    return res.sendStatus(newUser.statusCode).json({ 'message': newUser.message });
+    return res.sendStatus(newUser.statusCode).json({
+        'message': newUser.message
+    });
 });
 
 router.post('/sign-out', (req, res, next) => {
@@ -106,7 +110,9 @@ router.post('/info/update', async(req, res, next) => {
     }
 
     let updatedUserInfo = await barbers.updateUserInfo(
-        barberId, address1, address2, postalCode, operatingHours
+        barberId, email, address1, address2, postalCode, operatingHours
     );
-    return res.sendStatus(updatedUserInfo.statusCode).json({ 'message': updatedUserInfo.message });
+    return res.sendStatus(updatedUserInfo.statusCode).json({
+        'message': updatedUserInfo.message
+    });
 });

@@ -1,6 +1,8 @@
 const mongo = require('../mongoUtil');
 const ObjectId = require('mongodb').ObjectId
-const { ReturnObject, QueueObject, barbersCollectionName, queueCollectionName } = require('./constants');
+const {
+    ReturnObject, QueueObject, barbersCollectionName, queueCollectionName
+} = require('./constants');
 
 function barberCheck(barberid){
     let db = mongo.getDb;
@@ -56,23 +58,31 @@ async function joinQueue(name,barberid){
                 'time': '<current time>'
             }
 
-            db.collection(queueCollectionName).insertOne(newEntry).then((id) => {
-                if (id) {
-                    rObj = new ReturnObject(
-                        200,
-                        {
-                            'message': `You have joined ${barber.name}'s queue`
-                        }
-                    )
-                } else {
-                    rObj = new ReturnObject(
-                        500,
-                        {
-                            'message': 'An error has occured when trying to join the queue'
-                        }
-                    )
+            db.collection(
+                queueCollectionName
+            ).insertOne(
+                newEntry
+            ).then(
+                (id) => {
+                    if (id) {
+                        rObj = new ReturnObject(
+                            200,
+                            {
+                                'message': `You have joined ${barber.name}'s 
+                                            queue`
+                            }
+                        )
+                    } else {
+                        rObj = new ReturnObject(
+                            500,
+                            {
+                                'message': `An error has occured when trying 
+                                            to join the queue`
+                            }
+                        )
+                    }
                 }
-            });
+            );
         }
     } else {
         rObj = new ReturnObject(
@@ -92,26 +102,31 @@ async function leaveQueue(uID,barberid){
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
         if (condition) {
-            db.collection(queueCollectionName).deleteOne({
+            db.collection(
+                queueCollectionName
+            ).deleteOne({
                 uID,
                 barberid
-            }).then((data) => {
-                if (data == 1) {
-                    rObj = new ReturnObject(
-                        200,
-                        {
-                            'message': `You have left ${barber.name}'s queue`
-                        }
-                    )
-                } else {
-                    rObj = new ReturnObject(
-                        500,
-                        {
-                            'message': 'An error has occured when trying to leave the queue'
-                        }
-                    )
+            }).then(
+                (data) => {
+                    if (data == 1) {
+                        rObj = new ReturnObject(
+                            200,
+                            {
+                                'message': `You have left ${barber.name}'s queue`
+                            }
+                        )
+                    } else {
+                        rObj = new ReturnObject(
+                            500,
+                            {
+                                'message': `An error has occured when trying
+                                            to leave the queue`
+                            }
+                        )
+                    }
                 }
-            });
+            );
         } else {
             rObj = new ReturnObject(
                 200,
@@ -147,7 +162,8 @@ async function viewQueue(uID, barberid, userType){
         }).toArray().then((data) => {
             if (data) {
                 let queueObj;
-                // Check to see if the user is in the queue and to edit the queue payload
+                // Check to see if the user is in the queue and to edit 
+                // the queue payload
                 if (entry) {
                     queueObj = new QueueObject(
                         data,
@@ -165,7 +181,8 @@ async function viewQueue(uID, barberid, userType){
                 rObj = new ReturnObject(
                     200,
                     {
-                        'message': `You have successfully accessed ${baber.name}'s queue`,
+                        'message': `You have successfully accessed 
+                                    ${baber.name}'s queue`,
                         'data': queueObj
                     }
                 )
@@ -173,7 +190,8 @@ async function viewQueue(uID, barberid, userType){
                 rObj = new ReturnObject(
                     500,
                     {
-                        'message': `An error occurred when trying to access ${baber.name}'s queue`
+                        'message': `An error occurred when trying to access 
+                                    ${baber.name}'s queue`
                     }
                 )
             }
@@ -205,7 +223,8 @@ async function kickFromQueue(uID, barberid) {
                 result = new ReturnObject(
                     500,
                     {
-                        'message': 'An error has occurred when trying to kick this customer from the queue'
+                        'message': `An error has occurred when trying to kick 
+                                    this customer from the queue`
                     }
                 )
             }
@@ -220,7 +239,8 @@ async function kickFromQueue(uID, barberid) {
                 result = new ReturnObject(
                     500,
                     {
-                        'message': 'An error has occurred when trying to kick this customer from the queue'
+                        'message': `An error has occurred when trying to kick
+                                    this customer from the queue`
                     }
                 )
             }
@@ -261,7 +281,8 @@ async function closeQueue(barberid){
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to close this barber\'s queue'
+                    'message': `An error has occurred when trying to close 
+                                this barber's queue`
                 }
             )
         }
@@ -276,7 +297,8 @@ async function closeQueue(barberid){
             result = new ReturnObject(
                 500,
                 {
-                    'message': 'An error has occurred when trying to close this barber\'s queue'
+                    'message': `An error has occurred when trying to close 
+                                this barber's queue`
                 }
             )
         }
