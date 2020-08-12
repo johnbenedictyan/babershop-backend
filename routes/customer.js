@@ -5,43 +5,55 @@ const ObjectId = require('mongodb').ObjectId;
 const jwt = require('../controllers/jwt');
 const queue = require('../controllers/queue');
 
-router.get('/view/:barberid', (req, res, next) => {
-    const { barberid } = req.params
-});
+// TODO: Can jwt authorizetoken can be placed in the customer router instead?
 
-router.post('/join-queue/:barberid', async(req, res, next) => {
-    const { barberid } = req.params;
-    const { name } = req.body;
+router.get(
+    '/view/:barberid',
+    jwt.authenticateToken,
+    (req, res, next) => {
+        const { barberid } = req.params
+    }
+);
 
-    let newEntry = await queue.joinQueue(name,barberid);
-    return res.sendStatus(newEntry.statusCode).json({
-        'message':newEntry.message
-    });
-});
+router.post(
+    '/join-queue/:barberid',
+    jwt.authenticateToken,
+    async (req, res, next) => {
+        const { barberid } = req.params;
+        const { name } = req.body;
 
-router.get('/leave-queue/:barberid', (req, res, next) => {
-    const { barberid } = req.params
-    const uID;
-    // TODO: X509 Cert Processing to check for or sign another valid x509 cert.
-    // TODO: Extract the uID which would be the cert value
-    // uID = <output of some function>
+        let newEntry = await queue.joinQueue(name,barberid);
+        return res.sendStatus(newEntry.statusCode).json({
+            'message':newEntry.message
+        });
+    }
+);
 
-    let result = await queue.leaveQueue(uID,barberid)
-    return res.sendStatus(newEntry.statusCode).json({
-        'message': newEntry.message
-    });
-});
+router.get(
+    '/leave-queue/:barberid',
+    jwt.authenticateToken,
+    (req, res, next) => {
+        const { customerId } = req.meta;
+        const { barberid } = req.params
 
-router.get('/view-barbers', (req, res, next) => {
-    const { barberid } = req.params
-    const uID;
-    // TODO: X509 Cert Processing to check for or sign another valid x509 cert.
-    // TODO: Extract the uID which would be the cert value
-    // uID = <output of some function>
+        let result = await queue.leaveQueue(customerId, barberid)
+        return res.sendStatus(newEntry.statusCode).json({
+            'message': newEntry.message
+        });
+    }
+);
 
-    let result = await queue.viewQueue(uID,barberid)
-    return res.sendStatus(newEntry.statusCode).json({
-        'message': newEntry.message,
-        'data': result.data
-    });
-});
+router.get(
+    '/view-barbers',
+    jwt.authenticateToken,
+    (req, res, next) => {
+        const { customerId } = req.meta;
+        const { barberid } = req.params
+
+        let result = await queue.viewQueue(customerId, barberid)
+        return res.sendStatus(newEntry.statusCode).json({
+            'message': newEntry.message,
+            'data': result.data
+        });
+    }
+);
