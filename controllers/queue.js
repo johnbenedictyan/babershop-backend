@@ -35,7 +35,7 @@ function queueEntryCheck(){
     // up and log in just so that we can stop multiple queue entries from the same user.
 }
 
-async function joinQueue(name,barberId,customerId){
+async function joinQueue(name, barberId, customerId){
     let db = mongo.getDb();
     let barber = barberCheck(barberId);
     let rObj;
@@ -95,7 +95,7 @@ async function joinQueue(name,barberId,customerId){
     return rObj
 }
 
-async function leaveQueue(uID, barberId, customerId) {
+async function leaveQueue(customerId, barberId) {
     let db = mongo.getDb();
     let barber = barberCheck(barberId);
     let rObj;
