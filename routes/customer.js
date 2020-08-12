@@ -37,8 +37,8 @@ router.get(
         const { barberId } = req.params
 
         let result = await queue.leaveQueue(customerId, barberId)
-        return res.sendStatus(newEntry.statusCode).json({
-            'message': newEntry.message
+        return res.sendStatus(result.statusCode).json({
+            'message': result.message
         });
     }
 );
@@ -51,8 +51,8 @@ router.get(
         const { barberId } = req.params
 
         let result = await queue.viewQueue(customerId, barberId)
-        return res.sendStatus(newEntry.statusCode).json({
-            'message': newEntry.message,
+        return res.sendStatus(result.statusCode).json({
+            'message': result.message,
             'data': result.data
         });
     }
