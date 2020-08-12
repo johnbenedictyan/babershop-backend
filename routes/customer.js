@@ -4,6 +4,7 @@ const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectId;
 const jwt = require('../controllers/jwt');
 const queue = require('../controllers/queue');
+const barbers = require('../controllers/users');
 
 // TODO: Can jwt authorizetoken can be placed in the customer router instead?
 
@@ -12,6 +13,12 @@ router.get(
     jwt.authenticateToken,
     (req, res, next) => {
         const { barberId } = req.params
+        barbers.getUserById(barberId).then((result) => {
+            return res.sendStatus(result.statusCode).json({
+                'message': result.message,
+                'data': result.data
+            });
+        })
     }
 );
 
