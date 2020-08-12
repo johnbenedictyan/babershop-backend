@@ -8,21 +8,21 @@ const queue = require('../controllers/queue');
 // TODO: Can jwt authorizetoken can be placed in the customer router instead?
 
 router.get(
-    '/view/:barberid',
+    '/view/:barberId',
     jwt.authenticateToken,
     (req, res, next) => {
-        const { barberid } = req.params
+        const { barberId } = req.params
     }
 );
 
 router.post(
-    '/join-queue/:barberid',
+    '/join-queue/:barberId',
     jwt.authenticateToken,
     async (req, res, next) => {
-        const { barberid } = req.params;
+        const { barberId } = req.params;
         const { name } = req.body;
 
-        let newEntry = await queue.joinQueue(name,barberid);
+        let newEntry = await queue.joinQueue(name,barberId);
         return res.sendStatus(newEntry.statusCode).json({
             'message':newEntry.message
         });
@@ -30,13 +30,13 @@ router.post(
 );
 
 router.get(
-    '/leave-queue/:barberid',
+    '/leave-queue/:barberId',
     jwt.authenticateToken,
     (req, res, next) => {
         const { customerId } = req.meta;
-        const { barberid } = req.params
+        const { barberId } = req.params
 
-        let result = await queue.leaveQueue(customerId, barberid)
+        let result = await queue.leaveQueue(customerId, barberId)
         return res.sendStatus(newEntry.statusCode).json({
             'message': newEntry.message
         });
@@ -48,9 +48,9 @@ router.get(
     jwt.authenticateToken,
     (req, res, next) => {
         const { customerId } = req.meta;
-        const { barberid } = req.params
+        const { barberId } = req.params
 
-        let result = await queue.viewQueue(customerId, barberid)
+        let result = await queue.viewQueue(customerId, barberId)
         return res.sendStatus(newEntry.statusCode).json({
             'message': newEntry.message,
             'data': result.data
