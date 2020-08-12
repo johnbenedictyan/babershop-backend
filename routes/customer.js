@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectId;
-const uuidv4 = require('uuid/v4');
-
+const jwt = require('../controllers/jwt');
 const queue = require('../controllers/queue');
 
 router.get('/view/:barberid', (req, res, next) => {
