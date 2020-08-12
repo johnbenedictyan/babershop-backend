@@ -41,7 +41,7 @@ async function joinQueue(name, barberId, customerId){
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
-        // TODO: Add a uID check function to check if the uID exists.
+        // TODO: Add a customerId check function to check if the customerId exists.
         
         if (condition) {
             rObj = new ReturnObject(
@@ -54,7 +54,7 @@ async function joinQueue(name, barberId, customerId){
             let newEntry = {
                 name,
                 barberId,
-                'uID': '<queueEntryCheck output of the x509 cert value>',
+                'customerId': '<queueEntryCheck output of the x509 cert value>',
                 'time': '<current time>'
             }
 
@@ -105,7 +105,7 @@ async function leaveQueue(customerId, barberId) {
             db.collection(
                 queueCollectionName
             ).deleteOne({
-                uID,
+                customerId,
                 barberId
             }).then(
                 (data) => {
@@ -216,7 +216,7 @@ async function kickFromQueue(customerId, barberId) {
         if (condition) {
             try {
                 kickedCustomer = db.collection(queueCollectionName).deleteOne({
-                    uID,
+                    customerId,
                     barberId
                 })
             } catch (error) {
