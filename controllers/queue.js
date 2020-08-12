@@ -16,7 +16,7 @@ function barberCheck(barberId){
     });
 }
 
-function queueEntryCheck(){
+function queueEntryCheck(customerId, barberId) {
     // Look into node-forge and the use of x509 certificates
 
     // When the user serves up the webpage, the B.E. will sign a x509 cert and pass 
