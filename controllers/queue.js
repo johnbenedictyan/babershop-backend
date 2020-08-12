@@ -54,7 +54,7 @@ async function joinQueue(name, barberId, customerId){
             let newEntry = {
                 name,
                 barberId,
-                'customerId': '<queueEntryCheck output of the x509 cert value>',
+                customerId,
                 'time': '<current time>'
             }
 
