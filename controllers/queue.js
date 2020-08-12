@@ -4,11 +4,11 @@ const {
     ReturnObject, QueueObject, barbersCollectionName, queueCollectionName
 } = require('./constants');
 
-function barberCheck(barberid){
+function barberCheck(barberId){
     let db = mongo.getDb;
     db.collection(barbersCollectionName)
     .findOne({
-        '_id': ObjectId(barberid)
+        '_id': ObjectId(barberId)
     })
     .toArray()
     .then((data) => {
@@ -35,9 +35,9 @@ function queueEntryCheck(){
     // up and log in just so that we can stop multiple queue entries from the same user.
 }
 
-async function joinQueue(name,barberid,customerId){
+async function joinQueue(name,barberId,customerId){
     let db = mongo.getDb();
-    let barber = barberCheck(barberid);
+    let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
@@ -53,7 +53,7 @@ async function joinQueue(name,barberid,customerId){
         } else {
             let newEntry = {
                 name,
-                barberid,
+                barberId,
                 'uID': '<queueEntryCheck output of the x509 cert value>',
                 'time': '<current time>'
             }
@@ -95,9 +95,9 @@ async function joinQueue(name,barberid,customerId){
     return rObj
 }
 
-async function leaveQueue(uID, barberid, customerId) {
+async function leaveQueue(uID, barberId, customerId) {
     let db = mongo.getDb();
-    let barber = barberCheck(barberid);
+    let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
@@ -106,7 +106,7 @@ async function leaveQueue(uID, barberid, customerId) {
                 queueCollectionName
             ).deleteOne({
                 uID,
-                barberid
+                barberId
             }).then(
                 (data) => {
                     if (data == 1) {
@@ -146,9 +146,9 @@ async function leaveQueue(uID, barberid, customerId) {
     return rObj
 }
 
-async function viewQueue(customerId, barberid, userType) {
+async function viewQueue(customerId, barberId, userType) {
     let db = mongo.getDb();
-    let barber = barberCheck(barberid);
+    let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
@@ -156,7 +156,7 @@ async function viewQueue(customerId, barberid, userType) {
         // let entry = queueEntryCheck()
 
         db.collection(queueCollectionName).find({
-            barberid
+            barberId
         }).sort({
             'time': 1
         }).toArray().then((data) => {
@@ -207,9 +207,9 @@ async function viewQueue(customerId, barberid, userType) {
     return rObj
 }
 
-async function kickFromQueue(customerId, barberid) {
+async function kickFromQueue(customerId, barberId) {
     let db = mongo.getDb();
-    let barber = barberCheck(barberid);
+    let barber = barberCheck(barberId);
     let kickedCustomer, result;
     if (barber) {
         // TODO: Add the queueEntryCheck function here.
@@ -217,7 +217,7 @@ async function kickFromQueue(customerId, barberid) {
             try {
                 kickedCustomer = db.collection(queueCollectionName).deleteOne({
                     uID,
-                    barberid
+                    barberId
                 })
             } catch (error) {
                 result = new ReturnObject(
@@ -263,9 +263,9 @@ async function kickFromQueue(customerId, barberid) {
     return result
 }
 
-async function closeQueue(barberid){
+async function closeQueue(barberId){
     let db = mongo.getDb();
-    let barber = barberCheck(barberid);
+    let barber = barberCheck(barberId);
     let updatedBarber, result;
     if (barber) {
         try {
