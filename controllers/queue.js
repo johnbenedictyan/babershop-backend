@@ -76,17 +76,16 @@ async function joinQueue(name, barberId, customerId){
     let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
-        // TODO: Add the queueEntryCheck function here.
-        // TODO: Add a customerId check function to check if the customerId exists.
+        let queueEntry = queueEntryCheck(customerId, barberId);
         
-        if (condition) {
+        if (queueEntry.statusCode == 200) {
             rObj = new ReturnObject(
                 200,
                 {
                     'message': `You have joined ${barber.name}'s queue`
                 }
             )
-        } else {
+        } else if (queueEntry.statusCode == 404) {
             let newEntry = {
                 name,
                 barberId,
@@ -120,6 +119,14 @@ async function joinQueue(name, barberId, customerId){
                 }
             );
         }
+        else{
+            rObj = new ReturnObject(
+                500, {
+                    'message': `An error has occured when trying 
+                                to join the queue`
+                }
+            )
+        }
     } else {
         rObj = new ReturnObject(
             404,
@@ -136,8 +143,9 @@ async function leaveQueue(customerId, barberId) {
     let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
-        // TODO: Add the queueEntryCheck function here.
-        if (condition) {
+        let queueEntry = queueEntryCheck(customerId, barberId);
+
+        if (queueEntry.statusCode == 200) {
             db.collection(
                 queueCollectionName
             ).deleteOne({
@@ -163,11 +171,18 @@ async function leaveQueue(customerId, barberId) {
                     }
                 }
             );
-        } else {
+        } else if (queueEntry.statusCode == 404) {
             rObj = new ReturnObject(
                 200,
                 {
                     'message': `You have left ${barber.name}'s queue`
+                }
+            )
+        } else {
+            rObj = new ReturnObject(
+                500, {
+                    'message': `An error has occured when trying to leave the 
+                                queue`
                 }
             )
         }
@@ -187,9 +202,7 @@ async function viewQueue(customerId, barberId, userType) {
     let barber = barberCheck(barberId);
     let rObj;
     if (barber) {
-        // TODO: Add the queueEntryCheck function here.
-        let entry;
-        // let entry = queueEntryCheck()
+        let queueEntry = queueEntryCheck(customerId, barberId);
 
         db.collection(queueCollectionName).find({
             barberId
@@ -200,7 +213,16 @@ async function viewQueue(customerId, barberId, userType) {
                 let queueObj;
                 // Check to see if the user is in the queue and to edit 
                 // the queue payload
-                if (entry) {
+                if (queueEntry.statusCode == 200) {
+
+                    // Need a function that will go through each entry in the
+                    // data array and create a new array of just the customerId
+
+                    // Then we need to find the index of the given customerId
+                    // to obtain the position in queue.
+
+                    // TODO: Find out which algorithm is more suitable for this
+                    
                     queueObj = new QueueObject(
                         data,
                         userType,
