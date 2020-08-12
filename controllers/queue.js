@@ -214,21 +214,28 @@ async function viewQueue(customerId, barberId, userType) {
                 // Check to see if the user is in the queue and to edit 
                 // the queue payload
                 if (queueEntry.statusCode == 200) {
+                    let queue = data.map(function(entry){
+                        return entry.customerId
+                    });
 
-                    // Need a function that will go through each entry in the
-                    // data array and create a new array of just the customerId
-
-                    // Then we need to find the index of the given customerId
-                    // to obtain the position in queue.
+                    let position = queue.indexOf(queueEntry.data.customerId);
 
                     // TODO: Find out which algorithm is more suitable for this
                     
-                    queueObj = new QueueObject(
-                        data,
-                        userType,
-                        true,
-                        2
-                    )
+                    if (position != -1) {
+                        queueObj = new QueueObject(
+                            data,
+                            userType,
+                            true,
+                            position
+                        )
+                    } else {
+                        queueObj = new QueueObject(
+                            data,
+                            userType,
+                            false
+                        )
+                    }
                 } else {
                     queueObj = new QueueObject(
                         data,
