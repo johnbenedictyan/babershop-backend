@@ -5,63 +5,88 @@ const {
 } = require('./constants');
 
 async function getAll(){
-    let barbers, result;
+    let db = mongo.getDb();
+    let result;
     try {
-        barbers = await mongo.getDb().collection(barbersCollectionName).find().toArray();
-    } catch (error) {
+        db.collection(barbersCollectionName).find().toArray().then((barbers) => {
+            if (barbers) {
+                result = new ReturnObject(
+                    200, 
+                    {
+                        'message': 'You have successfully accessed all barbers',
+                        'data': barbers
+                    }
+                )
+            } else {
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': `No barbers found`
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500,
+                {
+                    'message': `An error has occurred when trying to access 
+                                all barbers`
+                }
+            )
+        });
+    } catch (err) {
         result = new ReturnObject(
-            500,
+            500, 
             {
-                'message': 'An error has occurred when trying to access all barbers',
+                'message': `An error has occurred when trying to access 
+                                all barbers`
             }
         )
     }
-    if (barbers) {
-        result = new ReturnObject(
-            200,
-            {
-                'message': 'You have successfully accessed all barbers',
-                'data': barbers
-            }
-        )
-    } else {
-        result = new ReturnObject(
-            500,
-            {
-                'message': 'An error has occurred when trying to access all barbers',
-            }
-        )
-    }
+    
     return result
 }
 
 async function getUserById(barberId){
-    let barber, result;
+    let db = mongo.getDb();
+    let result;
     try {
-        barber = await mongo.getDb().collection(barbersCollectionName).findOne({
+        db.collection(barbersCollectionName).findOne({
             _id: new ObjectId(barberId)
+        }).then((barber) => {
+            if (barber) {
+                result = new ReturnObject(
+                    200, 
+                    {
+                        'message': `You have successfully accessed the barber 
+                                    with id #${barberId}`,
+                        'data': barber
+                    }
+                )
+            } else {
+                result = new ReturnObject(
+                    500, 
+                    {
+                        'message': `An error has occurred when trying to access 
+                                    the barber with id #${barberId}`,
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to access the 
+                                barber with id #${barberId}`,
+                }
+            )
         });
-    } catch (error) {
+    } catch (err) {
         result = new ReturnObject(
             500,
             {
-                'message': `An error has occurred when trying to access the barber with id #${barberId}`,
-            }
-        )
-    }
-    if (barber) {
-        result = new ReturnObject(
-            200,
-            {
-                'message': `You have successfully accessed  the barber with id #${barberId}`,
-                'data': barber
-            }
-        )
-    } else {
-        result = new ReturnObject(
-            500,
-            {
-                'message': `An error has occurred when trying to access the barber with id #${barberId}`,
+                'message': `An error has occurred when trying to access the 
+                            barber with id #${barberId}`
             }
         )
     }
@@ -69,32 +94,44 @@ async function getUserById(barberId){
 }
 
 async function getUserByUsername(username){
-    let barber, result;
+    let db = mongo.getDb();
+    let result;
     try {
-        barber = await mongo.getDb().collection(barbersCollectionName).findOne({
+        db.collection(barbersCollectionName).findOne({
             username
+        }).then((barber) => {
+            if (barber) {
+                result = new ReturnObject(
+                    200, {
+                        'message': `You have successfully accessed the barber 
+                                    with the username - ${username}`,
+                        'data': barber
+                    }
+                )
+            } else {
+                result = new ReturnObject(
+                    500, 
+                    {
+                        'message': `An error has occurred when trying to access 
+                                    the barber with the username - ${username}`
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to access the 
+                                barber with the username - ${username}`
+                }
+            )
         });
-    } catch (error) {
+    } catch (err) {
         result = new ReturnObject(
-            500,
+            500, 
             {
-                'message': `An error has occurred when trying to access the barber with username: #${username}`,
-            }
-        )
-    }
-    if (barber) {
-        result = new ReturnObject(
-            200,
-            {
-                'message': `You have successfully accessed  the barber with username: #${username}`,
-                'data': barber
-            }
-        )
-    } else {
-        result = new ReturnObject(
-            500,
-            {
-                'message': `An error has occurred when trying to access the barber with username: #${username}`,
+                'message': `An error has occurred when trying to access the 
+                            barber with the username - ${username}`
             }
         )
     }
