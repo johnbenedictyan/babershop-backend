@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const mongo = require('../controllers/mongo');
 const ObjectId = require('mongodb').ObjectId
+const uuidv4 = require('uuid/v4');
 
 const queue = require('../controllers/queue');
 
