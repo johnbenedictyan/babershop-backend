@@ -35,17 +35,17 @@ async function getAll(){
     return result
 }
 
-async function getUserById(id){
+async function getUserById(barberId){
     let barber, result;
     try {
         barber = await mongo.getDb().collection(barbersCollectionName).findOne({
-            _id: new ObjectId(id)
+            _id: new ObjectId(barberId)
         });
     } catch (error) {
         result = new ReturnObject(
             500,
             {
-                'message': `An error has occurred when trying to access the barber with id #${id}`,
+                'message': `An error has occurred when trying to access the barber with id #${barberId}`,
             }
         )
     }
@@ -53,7 +53,7 @@ async function getUserById(id){
         result = new ReturnObject(
             200,
             {
-                'message': `You have successfully accessed  the barber with id #${id}`,
+                'message': `You have successfully accessed  the barber with id #${barberId}`,
                 'data': barber
             }
         )
@@ -61,7 +61,7 @@ async function getUserById(id){
         result = new ReturnObject(
             500,
             {
-                'message': `An error has occurred when trying to access the barber with id #${id}`,
+                'message': `An error has occurred when trying to access the barber with id #${barberId}`,
             }
         )
     }
@@ -147,9 +147,9 @@ async function addUser(username,email,password){
 }
 
 async function updateUserInfo(
-    id, email, address1, address2, postalCode, operatingHours
+    barberId, email, address1, address2, postalCode, operatingHours
 ){
-    let barber = await getUserById(id);
+    let barber = await getUserById(barberId);
     let updatedBarberInfo,result;
     if (barber) {
         try {
@@ -157,7 +157,7 @@ async function updateUserInfo(
                 barbersInfoCollectionName
             ).updateOne(
                 {
-                    _id: new ObjectId(id)
+                    _id: new ObjectId(barberId)
                 },
                 {
                     '$set': {
@@ -258,15 +258,15 @@ async function updateUser(username, email, password) {
     return result
 }
 
-async function deleteUser(id){
-    let user = await getUserById(id);
+async function deleteUser(barberId){
+    let user = await getUserById(barberId);
     let deletedBarber, result;
     if (user) {
         try {
             deletedBarber = await mongo.getDb().collection(
                 barbersCollectionName
             ).deleteOne({
-                // _id: new ObjectId(id)
+                // _id: new ObjectId(barberId)
                 _id: user._id
             })
         } catch (error) {
