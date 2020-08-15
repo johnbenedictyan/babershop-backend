@@ -490,6 +490,81 @@ async function deleteUser(barberId){
     return result
 }
 
+async function deleteUserInfo(barberId){
+    let db = mongo.getDb();
+    let result;
+    try {
+        getUserById(barberId).then((barber) => {
+            if (barber){
+                try {
+                    db.collection(barbersInfoCollectionName).deleteOne({
+                        barberId: new ObjectId(barberId)
+                    }).then((deletedBarberInfo) => {
+                        if (deletedBarberInfo){
+                            result = new ReturnObject(
+                                200, 
+                                {
+                                    'message': `Successfully deleted barber's
+                                                info`   
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                500, 
+                                {
+                                    'message': `An error has occurred when 
+                                                trying to delete this barber's
+                                                info`
+                                }
+                            )
+                        }
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, 
+                            {
+                                'message': `An error has occurred when trying to
+                                            delete this barber's info`
+                            }
+                        )
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to 
+                                        delete this barber's info`
+                        }
+                    )
+                }
+            } else {
+                result = new ReturnObject(
+                    404,
+                    {
+                        'message': `This barber does not exist`
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to delete this
+                                barber's info`
+                }
+            )
+        });
+    } catch (err) {
+        result = new ReturnObject(
+            500, 
+            {
+                'message': `An error has occurred when trying to delete this
+                            barber's info`
+            }
+        )
+    }
+    return result
+}
+
 module.exports = {
     getAll,
     getUserById,
@@ -498,5 +573,6 @@ module.exports = {
     addUserInfo,
     updateUserInfo,
     updateUser,
-    deleteUser
+    deleteUser,
+    deleteUserInfo
 }
