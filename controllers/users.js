@@ -138,45 +138,129 @@ async function getUserByUsername(username){
     return result
 }
 
-async function addUser(username,email,password){
-    let user = await getByUserName(username);
-    let newBarber, result;
-    if (user == null) {
-        try {
-            newBarber = await mongo.getDb().collection(barbersCollectionName).insertOne({
-                username,
-                email,
-                password
-            })
-        } catch (error) {
+async function addUser(username, password) {
+    let result;
+    let db = mongo.getDb();
+    try {
+        getByUserName(username).then((user) => {
+            if (user) {
+                result = new ReturnObject(
+                    401, 
+                    {
+                        'message': 'Username has been taken',
+                    }
+                )
+            } else {
+                try {
+                    db.collection(barbersCollectionName).insertOne({
+                        username,
+                        password
+                    }).then((barber) => {
+                        if (barber) {
+                            result = new ReturnObject(
+                                200, 
+                                {
+                                    'message': `Your account has been 
+                                                successfully created`,
+                                    'data': barber
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                500, 
+                                {
+                                    'message': `An error has occurred when 
+                                                trying to create your account`
+                                }
+                            )
+                        }
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, 
+                            {
+                                'message': `An error has occurred when trying to 
+                                        create a new barber`
+                            }
+                        )
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to 
+                                        create a new barber`
+                        }
+                    )
+                }
+            }
+        }).catch((err) => {
             result = new ReturnObject(
-                500,
+                500, 
                 {
-                    'message': 'An error has occurred when trying to create a new barber',
+                    'message': `An error has occurred when trying to create a 
+                                new barber`
                 }
             )
-        }
-        if (newBarber) {
-            result = new ReturnObject(
-                200,
-                {
-                    'message': 'New barber successfully created',
-                    'data': newbarber
-                }
-            )
-        } else {
-            result = new ReturnObject(
-                500,
-                {
-                    'message': 'An error has occurred when trying to create a new barber',
-                }
-            )
-        }
-    } else {
+        });
+    } catch (err) {
         result = new ReturnObject(
-            401,
+            500,
             {
-                'message': 'Username has been taken',
+                'message': `An error has occurred when trying to create a new 
+                            barber`
+            }
+        )
+    }
+    return result
+}
+
+async function addUserInfo(
+    barberId, email, address1, address2, postalCode, operatingHours
+) {
+    try {
+        db.collection(
+            barbersInfoCollectionName
+        ).insertOne({
+            barberId,
+            email,
+            address1,
+            address2,
+            postalCode,
+            operatingHours
+        }).then((barberInfo) => {
+            if (barberInfo) {
+                result = new ReturnObject(
+                    200, 
+                    {
+                        'message': `Your account info has been successfully 
+                                    added`,
+                        'data': barberInfo
+                    }
+                )
+            } else {
+                result = new ReturnObject(
+                    500, 
+                    {
+                        'message': `An error has occurred when trying to add 
+                                    your account info`
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to add 
+                                your account info`
+                }
+            )
+        });
+    } catch (err) {
+        result = new ReturnObject(
+            500, 
+            {
+                'message': `An error has occurred when trying to add 
+                                    your account info`
             }
         )
     }
@@ -185,110 +269,148 @@ async function addUser(username,email,password){
 
 async function updateUserInfo(
     barberId, email, address1, address2, postalCode, operatingHours
-){
-    let barber = await getUserById(barberId);
-    let updatedBarberInfo,result;
-    if (barber) {
-        try {
-            updatedBarberInfo = await mongo.getDb().collection(
-                barbersInfoCollectionName
-            ).updateOne(
-                {
-                    _id: new ObjectId(barberId)
-                },
-                {
-                    '$set': {
-                        email,
-                        address1,
-                        address2,
-                        postalCode,
-                        operatingHours
-                    }
+) {
+    let db = mongo.getDb();
+    let result;
+    try {
+        getUserById().then((barber) => {
+            if (barber) {
+                try {
+                    db.collection(barbersInfoCollectionName).updateOne({
+                        _id: new ObjectId(barberId)
+                    },
+                    {
+                        '$set': {
+                            email,
+                            address1,
+                            address2,
+                            postalCode,
+                            operatingHours
+                        }
+                    }).then((updatedBarber) => {
+                        result = new ReturnObject(
+                            200, 
+                            {
+                                'message': `Successfully updated barber's 
+                                            information`
+                            }
+                        )
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, 
+                            {
+                                'message': `An error has occurred when trying to 
+                                            update barber's information`
+                            }
+                        )
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occurred when trying to 
+                                        update barber's information`
+                        }
+                    )
                 }
-            )
-        } catch (error) {
+            } else {
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': 'This barber does not exist',
+                    }
+                )
+            }
+        }).catch((err) => {
             result = new ReturnObject(
-                500,
+                500, 
                 {
                     'message': `An error has occurred when trying to update 
                                 barber's information`
                 }
             )
-        }
-        if (updatedBarber) {
-            result = new ReturnObject(
-                200,
-                {
-                    'message': `Successfully updated barber's information`
-                }
-            )
-        } else {
-            result = new ReturnObject(
-                500,
-                {
-                    'message': `An error has occurred when trying to 
-                                update barber`
-                }
-            )
-        }
-    } else {
+        });
+    } catch (err) {
         result = new ReturnObject(
-            404,
+            500, 
             {
-                'message': 'This barber does not exist',
+                'message': `An error has occurred when trying to update 
+                            barber's information`
             }
         )
     }
     return result
 }
 
-async function updateUser(username, email, password) {
-    let user = await getByUserName(username);
-    let updatedBarber, result;
-    if (user) {
-        try {
-            updatedBarber = await mongo.getDb().collection(
-                barbersCollectionName
-            ).updateOne(
-                { username },
-                {
-                    '$set': {
-                        username: user.username,
-                        email,
-                        password
+async function updateUser(barberId, username, password) {
+    let db = mongo.getDb();
+    let result;
+    try {
+        getUserById(barberId).then((barber) => {
+            if (barber){
+                try {
+                    db.collection(barbersCollectionName).updateOne({
+                        _id: new ObjectId(barberId)
+                    }, {
+                        '$set': {
+                            username,
+                            password
+                        }
+                    }).then((updatedBarber) => {
+                        if (updatedBarber) {
+                            result = new ReturnObject(
+                                200, {
+                                    'message': 'Successfully updated barber',
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                500, 
+                                {
+                                    'message': `An error has occurred when 
+                                                trying to update this barber`
+                                }
+                            )
+                        }
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, 
+                            {
+                                'message': `An error has occurred when trying 
+                                            to update this barber`
+                            }
+                        )
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to 
+                                        update this barber`
+                        }
+                    )
+                }
+            } else {
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': 'This barber does not exist',
                     }
-                }
-            )
-        } catch (error) {
+                )
+            }
+        }).catch((err) => {
             result = new ReturnObject(
-                500,
-                {
-                    'message': `An error has occurred when trying to update 
+                500, {
+                    'message': `An error has occurred when trying to update this 
                                 barber`
                 }
             )
-        }
-        if (updatedBarber) {
-            result = new ReturnObject(
-                200,
-                {
-                    'message': 'Successfully updated barber',
-                }
-            )
-        } else {
-            result = new ReturnObject(
-                500,
-                {
-                    'message': `An error has occurred when trying to update 
-                                barber`
-                }
-            )
-        }
-    } else {
+        });
+    } catch (err) {
         result = new ReturnObject(
-            404,
+            500, 
             {
-                'message': 'This barber does not exist',
+                'message': `An error has occurred when trying to update this 
+                            barber`
             }
         )
     }
@@ -296,46 +418,72 @@ async function updateUser(username, email, password) {
 }
 
 async function deleteUser(barberId){
-    let user = await getUserById(barberId);
-    let deletedBarber, result;
-    if (user) {
-        try {
-            deletedBarber = await mongo.getDb().collection(
-                barbersCollectionName
-            ).deleteOne({
-                // _id: new ObjectId(barberId)
-                _id: user._id
-            })
-        } catch (error) {
+    let db = mongo.getDb();
+    let result;
+    try {
+        getUserById(barberId).then((barber) => {
+            if (barber) {
+                try {
+                    db.collection(barbersCollectionName).deleteOne({
+                        _id:barber._id
+                    }).then((deletedBarber) => {
+                        if (deletedBarber){
+                            result = new ReturnObject(
+                                200, 
+                                {
+                                    'message': 'Successfully deleted barber',
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                500, 
+                                {
+                                    'message': `An error has occurred when 
+                                                trying to delete this barber`
+                                }
+                            )
+                        }
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, 
+                            {
+                                'message': `An error has occurred when trying to
+                                            delete this barber`
+                            }
+                        )
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to 
+                                        delete this barber`
+                        }
+                    )
+                }
+            } else {
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': 'This barber does not exist'
+                    }
+                )
+            }
+        }).catch((err) => {
             result = new ReturnObject(
-                500,
+                500, 
                 {
-                    'message': `An error has occurred when trying to delete
+                    'message': `An error has occurred when trying to delete this
                                 barber`
                 }
             )
-        }
-        if (deletedBarber) {
-            result = new ReturnObject(
-                200,
-                {
-                    'message': 'Successfully deleted barber',
-                }
-            )
-        } else {
-            result = new ReturnObject(
-                500,
-                {
-                    'message': `An error has occurred when trying to delete 
-                                barber`
-                }
-            )
-        }
-    } else {
+        });
+    } catch (err) {
         result = new ReturnObject(
-            404,
+            500, 
             {
-                'message': 'This barber does not exist',
+                'message': `An error has occurred when trying to delete this
+                            barber`
             }
         )
     }
@@ -347,6 +495,7 @@ module.exports = {
     getUserById,
     getUserByUsername,
     addUser,
+    addUserInfo,
     updateUserInfo,
     updateUser,
     deleteUser
