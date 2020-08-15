@@ -100,69 +100,80 @@ async function queueEntryCheck(customerId, barberId) {
 
 async function joinQueue(name, barberId, customerId){
     let db = mongo.getDb();
-    let barber = barberCheck(barberId);
-    let rObj;
-    if (barber) {
-        let queueEntry = queueEntryCheck(customerId, barberId);
-        
-        if (queueEntry.statusCode == 200) {
-            rObj = new ReturnObject(
-                200,
+    let result;
+    queueEntryCheck(customerId, barberId).then((res) => {
+        if (res.statusCode == 200) {
+            result = new ReturnObject(
+                200, 
                 {
                     'message': `You have joined ${barber.name}'s queue`
                 }
             )
-        } else if (queueEntry.statusCode == 404) {
-            let newEntry = {
-                name,
-                barberId,
-                customerId,
-                'time': '<current time>'
-            }
-
-            db.collection(
-                queueCollectionName
-            ).insertOne(
-                newEntry
-            ).then(
-                (id) => {
-                    if (id) {
-                        rObj = new ReturnObject(
-                            200,
-                            {
-                                'message': `You have joined ${barber.name}'s 
-                                            queue`
-                            }
-                        )
-                    } else {
-                        rObj = new ReturnObject(
-                            500,
-                            {
-                                'message': `An error has occured when trying 
+        } else if (res.statusCode == 404) {
+            if (res.message == `This barber does not exist`) {
+                result = res
+            } else {
+                let time = new Date(0);
+                let newEntry = {
+                    name,
+                    barberId,
+                    customerId,
+                    time
+                }
+                try {
+                    db.collection(queueCollectionName).insertOne(
+                        newEntry
+                    ).then((id) => {
+                        if (id) {
+                            result = new ReturnObject(
+                                200, {
+                                    'message': `You have joined the queue`
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                500, {
+                                    'message': `An error has occured when 
+                                                trying to join the queue`
+                                }
+                            )
+                        }
+                    }).catch((err) => {
+                        result = new ReturnObject(
+                            500, {
+                                'message': `An error has occured when trying
                                             to join the queue`
                             }
                         )
-                    }
+                    });
+                } catch (err) {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occured when trying to 
+                                    join the queue`
+                        }
+                    )
                 }
-            );
-        }
-        else{
-            rObj = new ReturnObject(
-                500, {
-                    'message': `An error has occured when trying 
-                                to join the queue`
+            }
+        } else {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occured when trying to join the
+                                queue`
                 }
             )
         }
-    } else {
-        rObj = new ReturnObject(
-            404,
+    }).catch((err) => {
+        result = new ReturnObject(
+            500, 
             {
-                'message': 'This barber does not exist'
+                'message': `An error has occured when trying to join the 
+                            queue`
             }
         )
-    }
-    return rObj
+    });
+    return result
 }
 
 async function leaveQueue(customerId, barberId) {
