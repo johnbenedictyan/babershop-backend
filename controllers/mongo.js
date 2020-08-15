@@ -1,6 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;
-const url = `mongodb+srv://dbuser:6mMGv2eYd8jYBkhQ@6c1o3.mongodb.net/
-             babershop?retryWrites=true&w=majority`;
+const url = process.env.MONGO_DB_URL;
 const dbName = "babershop";
 let _db;
 
