@@ -24,34 +24,71 @@ async function queueEntryCheck(customerId, barberId) {
     // We are basically using x509 certs as P.K.s because I don't want to require user sign
     // up and log in just so that we can stop multiple queue entries from the same user.
 
+    let db = mongo.getDb();
     let result;
     try {
-        mongo.getDb().collection(barbersCollectionName).findOne({
-            customerId,
-            barberId
-        }).then((existingEntry) => {
-            if (existingEntry) {
-                result = new ReturnObject(
-                    200, {
-                        'message': `You have successfully accessed queue entry 
-                                    with the customer id of #${customerId} and 
-                                    the barber id of #${barberId}`,
-                        'data': barber
-                    }
-                )
+        getUserById(barberId).then((barber) => {
+            if (barber) {
+                try {
+                    db.collection(barbersCollectionName).findOne({
+                        customerId,
+                        barberId
+                    }).then((existingEntry) => {
+                        if (existingEntry) {
+                            result = new ReturnObject(
+                                200, 
+                                {
+                                    'message': `You have successfully accessed 
+                                                queue entry with the customer id
+                                                of #${customerId} and the barber
+                                                id of #${barberId}`,
+                                    'data': barber
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                404, 
+                                {
+                                    'message': `No queue entry with the customer
+                                                id of #${customerId} and the 
+                                                barber id of #${barberId} exist`
+                                }
+                            )
+                        }
+                    })
+                } catch (error) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to access the 
+                            queue entry with the customer id of #${customerId} 
+                            and the barber id of #${barberId}`
+                        }
+                    )
+                }
             } else {
                 result = new ReturnObject(
-                    404, {
-                        'message': `No queue entry with the customer id of 
-                                    #${customerId} and the barber id of 
-                                    #${barberId} exist`
+                    404, 
+                    {
+                        'message': `This barber does not exist`
                     }
                 )
             }
-        })
-    } catch (error) {
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to access the 
+                                queue entry with the customer id of 
+                                #${customerId} and the barber id of 
+                                #${barberId}`
+                }
+            )
+        });
+    } catch (err) {
         result = new ReturnObject(
-            500, {
+            500, 
+            {
                 'message': `An error has occurred when trying to access the 
                             queue entry with the customer id of #${customerId} 
                             and the barber id of #${barberId}`
