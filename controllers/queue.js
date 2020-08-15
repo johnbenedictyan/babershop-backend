@@ -4,17 +4,7 @@ const {
     ReturnObject, QueueObject, barbersCollectionName, queueCollectionName
 } = require('./constants');
 
-function barberCheck(barberId){
-    let db = mongo.getDb;
-    db.collection(barbersCollectionName)
-    .findOne({
-        '_id': ObjectId(barberId)
-    })
-    .toArray()
-    .then((data) => {
-        return data
-    });
-}
+const { getUserById } = require('./users');
 
 async function queueEntryCheck(customerId, barberId) {
     // Look into node-forge and the use of x509 certificates
