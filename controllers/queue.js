@@ -31,8 +31,8 @@ async function queueEntryCheck(customerId, barberId) {
             if (barber) {
                 try {
                     db.collection(barbersCollectionName).findOne({
-                        customerId,
-                        barberId
+                        customerId: new ObjectId(customerId),
+                        barberId: new ObjectId(barberId)
                     }).then((existingEntry) => {
                         if (existingEntry) {
                             result = new ReturnObject(
@@ -122,8 +122,8 @@ async function joinQueue(name, barberId, customerId){
                         let time = new Date(0);
                         let newEntry = {
                             name,
-                            barberId,
-                            customerId,
+                            barberId: new ObjectId(barberId),
+                            customerId: new ObjectId(customerId),
                             time
                         }
                         try {
@@ -199,8 +199,8 @@ async function leaveQueue(customerId, barberId) {
                     switch (res.statusCode) {
                         case 200:
                             db.collection(queueCollectionName).deleteOne({
-                                customerId,
-                                barberId
+                                customerId: new ObjectId(customerId),
+                                barberId: new ObjectId(barberId)
                             }).then((res) => {
                                 switch (res) {
                                     case 1:
@@ -300,7 +300,7 @@ async function viewQueue(customerId, barberId, userType) {
             case 200:
                 let barber = res.data;
                 db.collection(queueCollectionName).find({
-                    barberId
+                    barberId: new ObjectId(barberId)
                 }).sort({
                     'time': 1
                 }).toArray().then((data) => {
