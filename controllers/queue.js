@@ -6,6 +6,7 @@ const {
 
 const { getUserById } = require('./users');
 
+//  Auxiliary Helper Functions
 async function queueEntryCheck(customerId, barberId) {
     // Look into node-forge and the use of x509 certificates
 
@@ -98,6 +99,8 @@ async function queueEntryCheck(customerId, barberId) {
     return result
 }
 
+
+//  Main Functions
 async function joinQueue(name, barberId, customerId){
     let db = mongo.getDb();
     let result;
