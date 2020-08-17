@@ -178,61 +178,106 @@ async function joinQueue(name, barberId, customerId){
 
 async function leaveQueue(customerId, barberId) {
     let db = mongo.getDb();
-    let barber = barberCheck(barberId);
-    let rObj;
-    if (barber) {
-        let queueEntry = queueEntryCheck(customerId, barberId);
+    let result;
+    getUserById(barberId).then((result) => {
+        switch (result.statusCode) {
+            case 200:
+                let barber = result.data;
+                queueEntryCheck(customerId,barberId).then((result) => {
+                    switch (result.statusCode) {
+                        case 200:
+                            db.collection(queueCollectionName).deleteOne({
+                                customerId,
+                                barberId
+                            }).then((result) => {
+                                switch (result) {
+                                    case 1:
+                                        result = new ReturnObject(
+                                            200, {
+                                                'message': `You have left 
+                                                            ${barber.name}'s 
+                                                            queue`
+                                            }
+                                        )
+                                        break;
 
-        if (queueEntry.statusCode == 200) {
-            db.collection(
-                queueCollectionName
-            ).deleteOne({
-                customerId,
-                barberId
-            }).then(
-                (data) => {
-                    if (data == 1) {
-                        rObj = new ReturnObject(
-                            200,
-                            {
-                                'message': `You have left ${barber.name}'s queue`
-                            }
-                        )
-                    } else {
-                        rObj = new ReturnObject(
-                            500,
-                            {
-                                'message': `An error has occured when trying
-                                            to leave the queue`
-                            }
-                        )
+                                    default:
+                                        result = new ReturnObject(
+                                            500, {
+                                                'message': `An error has occured
+                                                            when trying to leave
+                                                            the queue`
+                                            }
+                                        )
+                                        break;
+                                }
+                            }).catch((err) => {
+                                result = new ReturnObject(
+                                    500, {
+                                        'message': `An error has occured when 
+                                                    trying to leave the queue`
+                                    }
+                                )
+                            });
+                            break;
+                        
+                        case 404:
+                            result = new ReturnObject(
+                                200,
+                                {
+                                    'message': `You have left ${barber.name}'s 
+                                                queue`
+                                }
+                            )
+                            break;
+
+                        default:
+                            result = new ReturnObject(
+                                500, {
+                                    'message': `An error has occured when trying
+                                                to leave the queue`
+                                }
+                            )
+                            break;
                     }
-                }
-            );
-        } else if (queueEntry.statusCode == 404) {
-            rObj = new ReturnObject(
-                200,
-                {
-                    'message': `You have left ${barber.name}'s queue`
-                }
-            )
-        } else {
-            rObj = new ReturnObject(
-                500, {
-                    'message': `An error has occured when trying to leave the 
-                                queue`
-                }
-            )
+                }).catch((err) => {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occured when trying to 
+                                        leave the queue`
+                        }
+                    )
+                });
+                break;
+            
+            case 404:
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': 'This barber does not exist'
+                    }
+                )
+                break;
+
+            default:
+                result = new ReturnObject(
+                    500, 
+                    {
+                        'message': `An error has occured when trying to leave 
+                                    the queue`
+                    }
+                )
+                break;
         }
-    } else {
-        rObj = new ReturnObject(
-            404,
+    }).catch((err) => {
+        result = new ReturnObject(
+            500, 
             {
-                'message': 'This barber does not exist'
+                'message': `An error has occured when trying to leave the queue`
             }
         )
-    }
-    return rObj
+    });
+    return result
 }
 
 async function viewQueue(customerId, barberId, userType) {
