@@ -294,77 +294,133 @@ async function leaveQueue(customerId, barberId) {
 
 async function viewQueue(customerId, barberId, userType) {
     let db = mongo.getDb();
-    let barber = barberCheck(barberId);
-    let rObj;
-    if (barber) {
-        let queueEntry = queueEntryCheck(customerId, barberId);
+    let result;
+    getUserById(barberId).then((res) => {
+        switch (res.statusCode) {
+            case 200:
+                let barber = res.data;
+                db.collection(queueCollectionName).find({
+                    barberId
+                }).sort({
+                    'time': 1
+                }).toArray().then((data) => {
+                    if (data) {
+                        let queueObj;
+                        // Check to see if the user is in the queue and to edit 
+                        // the queue payload
+                        queueEntryCheck(customerId, barberId).then((res) => {
+                            switch (res.statusCode) {
+                                case 200:
+                                    let queue = data.map(function (entry) {
+                                        return entry.customerId
+                                    });
 
-        db.collection(queueCollectionName).find({
-            barberId
-        }).sort({
-            'time': 1
-        }).toArray().then((data) => {
-            if (data) {
-                let queueObj;
-                // Check to see if the user is in the queue and to edit 
-                // the queue payload
-                if (queueEntry.statusCode == 200) {
-                    let queue = data.map(function(entry){
-                        return entry.customerId
-                    });
+                                    let position = queue.indexOf(
+                                        queueEntry.data.customerId
+                                    );
 
-                    let position = queue.indexOf(queueEntry.data.customerId);
+                                    // TODO: Find out the best algorithm f.t.u.c
 
-                    // TODO: Find out which algorithm is more suitable for this
-                    
-                    if (position != -1) {
-                        queueObj = new QueueObject(
-                            data,
-                            userType,
-                            true,
-                            position
-                        )
+                                    if (position != -1) {
+                                        queueObj = new QueueObject(
+                                            data,
+                                            userType,
+                                            true,
+                                            position
+                                        )
+                                    } else {
+                                        queueObj = new QueueObject(
+                                            data,
+                                            userType,
+                                            false
+                                        )
+                                    }
+                                    result = new ReturnObject(
+                                        200, {
+                                            'message': `You have successfully 
+                                                        accessed 
+                                                        ${barber.name}'s queue`,
+                                            'data': queueObj
+                                        }
+                                    )
+                                    break;
+
+                                case 404:
+                                    queueObj = new QueueObject(
+                                        data,
+                                        userType,
+                                        false
+                                    )
+                                    result = new ReturnObject(
+                                        200, 
+                                        {
+                                            'message': `You have successfully 
+                                                        accessed 
+                                                        ${barber.name}'s queue`,
+                                            'data': queueObj
+                                        }
+                                    )
+                                    break;
+
+                                default:
+                                    result = new ReturnObject(
+                                        500, 
+                                        {
+                                            'message': `An error occurred when 
+                                                        trying to access 
+                                                        ${barber.name}'s queue`
+                                        }
+                                    )
+                                    break;
+                            }
+                        }).catch((err) => {
+                            result = new ReturnObject(
+                                500, 
+                                {
+                                    'message': `An error occurred when trying to
+                                                access ${barber.name}'s queue`
+                                }
+                            )
+                        });
                     } else {
-                        queueObj = new QueueObject(
-                            data,
-                            userType,
-                            false
+                        rObj = new ReturnObject(
+                            500, {
+                                'message': `An error occurred when trying to 
+                                            access ${barber.name}'s queue`
+                            }
                         )
                     }
-                } else {
-                    queueObj = new QueueObject(
-                        data,
-                        userType,
-                        false
-                    )
-                }
-                rObj = new ReturnObject(
-                    200,
+                });
+                break;
+            
+            case 404:
+                result = new ReturnObject(
+                    404, 
                     {
-                        'message': `You have successfully accessed 
-                                    ${baber.name}'s queue`,
-                        'data': queueObj
+                        'message': 'This barber does not exist'
                     }
                 )
-            } else {
-                rObj = new ReturnObject(
+                break;
+
+            default:
+                result = new ReturnObject(
                     500,
                     {
-                        'message': `An error occurred when trying to access 
-                                    ${baber.name}'s queue`
+                        'message': `An error occurred when trying to find this
+                                    barber`
                     }
                 )
-            }
-        });
-    } else {
-        rObj = new ReturnObject(
-            404,
+                break;
+        }
+    }).catch((err) => {
+        result = new ReturnObject(
+            500, 
             {
-                'message': 'This barber does not exist'
+                'message': `An error occurred when trying to find this barber`
             }
         )
-    }
-    return rObj
+    });
+    return result
 }
 
 async function kickFromQueue(customerId, barberId) {
