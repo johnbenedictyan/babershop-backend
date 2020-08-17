@@ -32,7 +32,7 @@ async function queueEntryCheck(customerId, barberId) {
         getUserById(barberId).then((barber) => {
             if (barber) {
                 try {
-                    db.collection(barbersCollectionName).findOne({
+                    db.collection(queueCollectionName).findOne({
                         customerId: new ObjectId(customerId),
                         barberId: new ObjectId(barberId)
                     }).then((existingEntry) => {
