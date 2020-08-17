@@ -1,8 +1,7 @@
 const mongo = require('../mongoUtil');
 const ObjectId = require('mongodb').ObjectId
 const {
-    ReturnObject, QueueObject, barbersCollectionName, queueCollectionName,
-    barbersStatusCollectionName
+    ReturnObject, QueueObject, queueCollectionName, barbersStatusCollectionName
 } = require('./constants');
 
 const { getUserById } = require('./users');
