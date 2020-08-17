@@ -1,7 +1,8 @@
 const mongo = require('../mongoUtil');
 const ObjectId = require('mongodb').ObjectId
 const {
-    ReturnObject, QueueObject, barbersCollectionName, queueCollectionName
+    ReturnObject, QueueObject, barbersCollectionName, queueCollectionName,
+    barbersStatusCollectionName
 } = require('./constants');
 
 const { getUserById } = require('./users');
@@ -99,6 +100,75 @@ async function queueEntryCheck(customerId, barberId) {
     return result
 }
 
+async function queueOpenCheck(barberId){
+    let db = mongo.getDb();
+    let result;
+    try {
+        getUserById(barberId).then((barber) => {
+            if (barber) {
+                try {
+                    db.collection(barbersStatusCollectionName).findOne({
+                        barberId: new ObjectId(barberId)
+                    }).then((barberStatus) => {
+                        if (barberStatus) {
+                            result = new ReturnObject(
+                                200, 
+                                {
+                                    'message': `You have successfully accessed 
+                                                the barber's status with the id
+                                                of #${barberId}`,
+                                    'data': barberStatus
+                                }
+                            )
+                        } else {
+                            result = new ReturnObject(
+                                404, 
+                                {
+                                    'message': `This barber does not have a 
+                                                status`
+                                }
+                            )
+                        }
+                    })
+                } catch (error) {
+                    result = new ReturnObject(
+                        500, 
+                        {
+                            'message': `An error has occurred when trying to 
+                                        access the status of the barber with the 
+                                        id of #${barberId}`
+                        }
+                    )
+                }
+            } else {
+                result = new ReturnObject(
+                    404, 
+                    {
+                        'message': `This barber does not exist`
+                    }
+                )
+            }
+        }).catch((err) => {
+            result = new ReturnObject(
+                500, 
+                {
+                    'message': `An error has occurred when trying to access the 
+                                status of the barber with the id of 
+                                #${barberId}`
+                }
+            )
+        });
+    } catch (err) {
+        result = new ReturnObject(
+            500, 
+            {
+                'message': `An error has occurred when trying to access the 
+                            status of the barber with the id of #${barberId}`
+            }
+        )
+    }
+    return result
+}
 
 //  Main Functions
 async function joinQueue(name, barberId, customerId){
