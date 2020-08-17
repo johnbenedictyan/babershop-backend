@@ -62,9 +62,10 @@ async function queueEntryCheck(customerId, barberId) {
                     result = new ReturnObject(
                         500, 
                         {
-                            'message': `An error has occurred when trying to access the 
-                            queue entry with the customer id of #${customerId} 
-                            and the barber id of #${barberId}`
+                            'message': `An error has occurred when trying to 
+                                        access the queue entry with the customer
+                                        id of #${customerId} and the barber id 
+                                        of #${barberId}`
                         }
                     )
                 }
