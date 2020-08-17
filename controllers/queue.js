@@ -179,18 +179,18 @@ async function joinQueue(name, barberId, customerId){
 async function leaveQueue(customerId, barberId) {
     let db = mongo.getDb();
     let result;
-    getUserById(barberId).then((result) => {
-        switch (result.statusCode) {
+    getUserById(barberId).then((res) => {
+        switch (res.statusCode) {
             case 200:
                 let barber = result.data;
-                queueEntryCheck(customerId,barberId).then((result) => {
-                    switch (result.statusCode) {
+                queueEntryCheck(customerId,barberId).then((res) => {
+                    switch (res.statusCode) {
                         case 200:
                             db.collection(queueCollectionName).deleteOne({
                                 customerId,
                                 barberId
-                            }).then((result) => {
-                                switch (result) {
+                            }).then((res) => {
+                                switch (res) {
                                     case 1:
                                         result = new ReturnObject(
                                             200, {
