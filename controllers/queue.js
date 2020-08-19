@@ -385,98 +385,122 @@ async function viewQueue(customerId, barberId, userType) {
     getUserById(barberId).then((res) => {
         switch (res.statusCode) {
             case 200:
-                let barber = res.data;
-                db.collection(queueCollectionName).find({
-                    barberId: new ObjectId(barberId)
-                }).sort({
-                    'time': 1
-                }).toArray().then((data) => {
-                    if (data) {
-                        let queueObj;
-                        // Check to see if the user is in the queue and to edit 
-                        // the queue payload
-                        queueEntryCheck(customerId, barberId).then((res) => {
-                            switch (res.statusCode) {
-                                case 200:
-                                    let queue = data.map(function (entry) {
-                                        return entry.customerId
+                queueOpenCheck(barberId).then((res) => {
+                    switch (res.statusCode) {
+                        case 200:
+                            let barber = res.data;
+                            db.collection(queueCollectionName).find({
+                                barberId: new ObjectId(barberId)
+                            }).sort({
+                                'time': 1
+                            }).toArray().then((data) => {
+                                if (data) {
+                                    let queueObj;
+                                    // Check to see if the user is in the queue 
+                                    // and to edit the queue payload
+                                    queueEntryCheck(
+                                        customerId,
+                                        barberId
+                                    ).then((res) => {
+                                        switch (res.statusCode) {
+                                            case 200:
+                                                let queue = data.map(
+                                                    function (entry) {
+                                                    return entry.customerId
+                                                });
+
+                                                let position = queue.indexOf(
+                                                    queueEntry.data.customerId
+                                                );
+
+                                                // TODO: Best algorithm f.t.u.c?
+
+                                                if (position != -1) {
+                                                    queueObj = new QueueObject(
+                                                        data,
+                                                        userType,
+                                                        true,
+                                                        position
+                                                    )
+                                                } else {
+                                                    queueObj = new QueueObject(
+                                                        data,
+                                                        userType,
+                                                        false
+                                                    )
+                                                }
+                                                result = new ReturnObject(
+                                                    200, 
+                                                    {
+                                                        'message': `You have 
+                                                                    successfully 
+                                                                    accessed 
+                                                                    the queue`,
+                                                        'data': queueObj
+                                                    }
+                                                )
+                                                break;
+
+                                            case 404:
+                                                queueObj = new QueueObject(
+                                                    data,
+                                                    userType,
+                                                    false
+                                                )
+                                                result = new ReturnObject(
+                                                    200, {
+                                                        'message': `You have 
+                                                                    successfully 
+                                                                    accessed 
+                                                                    the queue`,
+                                                        'data': queueObj
+                                                    }
+                                                )
+                                                break;
+
+                                            default:
+                                                result = new ReturnObject(
+                                                    500, {
+                                                        'message': `An error 
+                                                                    occurred 
+                                                                    when trying 
+                                                                    to access 
+                                                                    the queue`
+                                                    }
+                                                )
+                                                break;
+                                        }
+                                    }).catch((err) => {
+                                        result = new ReturnObject(
+                                            500, {
+                                                'message': `An error occurred 
+                                                            when trying to
+                                                            access the queue`
+                                            }
+                                        )
                                     });
-
-                                    let position = queue.indexOf(
-                                        queueEntry.data.customerId
-                                    );
-
-                                    // TODO: Find out the best algorithm f.t.u.c
-
-                                    if (position != -1) {
-                                        queueObj = new QueueObject(
-                                            data,
-                                            userType,
-                                            true,
-                                            position
-                                        )
-                                    } else {
-                                        queueObj = new QueueObject(
-                                            data,
-                                            userType,
-                                            false
-                                        )
-                                    }
+                                } else {
                                     result = new ReturnObject(
-                                        200, {
-                                            'message': `You have successfully 
-                                                        accessed 
-                                                        ${barber.name}'s queue`,
-                                            'data': queueObj
-                                        }
-                                    )
-                                    break;
-
-                                case 404:
-                                    queueObj = new QueueObject(
-                                        data,
-                                        userType,
-                                        false
-                                    )
-                                    result = new ReturnObject(
-                                        200, 
-                                        {
-                                            'message': `You have successfully 
-                                                        accessed 
-                                                        ${barber.name}'s queue`,
-                                            'data': queueObj
-                                        }
-                                    )
-                                    break;
-
-                                default:
-                                    result = new ReturnObject(
-                                        500, 
-                                        {
+                                        500, {
                                             'message': `An error occurred when 
-                                                        trying to access 
-                                                        ${barber.name}'s queue`
+                                                        trying to access the 
+                                                        queue`
                                         }
                                     )
-                                    break;
-                            }
-                        }).catch((err) => {
-                            result = new ReturnObject(
-                                500, 
-                                {
-                                    'message': `An error occurred when trying to
-                                                access ${barber.name}'s queue`
                                 }
-                            )
-                        });
-                    } else {
-                        rObj = new ReturnObject(
-                            500, {
-                                'message': `An error occurred when trying to 
-                                            access ${barber.name}'s queue`
-                            }
-                        )
+                            });
+                            break;
+                    
+                        default:
+                            break;
                     }
+                }).catch((err) => {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occured when trying to
+                                        access the queue`
+                        }
+                    )
                 });
                 break;
             
