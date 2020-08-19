@@ -70,49 +70,43 @@ async function queueEntryCheck(customerId, barberId) {
 async function queueOpenCheck(barberId){
     let db = mongo.getDb();
     let result;
-    getUserById(barberId).then((barber) => {
-        if (barber) {
-            try {
+    getUserById(barberId).then((res) => {
+        switch (res.statusCode) {
+            case 200:
                 db.collection(barbersStatusCollectionName).findOne({
                     barberId: new ObjectId(barberId)
-                }).then((barberStatus) => {
-                    if (barberStatus) {
+                }).then((status) => {
+                    if (status) {
                         result = new ReturnObject(
-                            200, 
-                            {
+                            200, {
                                 'message': `You have successfully accessed 
                                             the barber's status with the id
                                             of #${barberId}`,
-                                'data': barberStatus
+                                'data': status
                             }
                         )
                     } else {
                         result = new ReturnObject(
-                            500, 
-                            {
+                            500, {
                                 'message': `This barber does not have a 
                                             status`
                             }
                         )
                     }
-                })
-            } catch (error) {
-                result = new ReturnObject(
-                    500, 
-                    {
-                        'message': `An error has occurred when trying to 
-                                    access the status of the barber with the 
-                                    id of #${barberId}`
-                    }
-                )
-            }
-        } else {
-            result = new ReturnObject(
-                404, 
-                {
-                    'message': `This barber does not exist`
-                }
-            )
+                }).catch((err) => {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occurred when trying to 
+                                        access the status of the barber with the 
+                                        id of #${barberId}`
+                        }
+                    )
+                });
+                break;
+        
+            default:
+                result = res
+                break;
         }
     }).catch((err) => {
         result = new ReturnObject(
