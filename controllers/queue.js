@@ -24,17 +24,19 @@ async function queueEntryCheck(customerId, barberId) {
                                 'message': `You have successfully accessed 
                                             queue entry with the customer id
                                             of #${customerId} and the barber
-                                            id of #${barberId}`,
-                                'data': barber
+                                            id of #${barberId}. The customer
+                                            is in the queue`,
+                                'data': existingEntry
                             }
                         )
                     } else {
                         result = new ReturnObject(
-                            404, 
+                            200, 
                             {
                                 'message': `No queue entry with the customer
                                             id of #${customerId} and the 
-                                            barber id of #${barberId} exist`
+                                            barber id of #${barberId} exist`,
+                                'data': null
                             }
                         )
                     }
