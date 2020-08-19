@@ -10,29 +10,27 @@ const { getUserById } = require('./users');
 async function queueEntryCheck(customerId, barberId) {
     let db = mongo.getDb();
     let result;
-    getUserById(barberId).then((barber) => {
-        if (barber) {
-            try {
+    getUserById(barberId).then((res) => {
+        switch (res.statusCode) {
+            case 200:
                 db.collection(queueCollectionName).findOne({
                     customerId: new ObjectId(customerId),
                     barberId: new ObjectId(barberId)
-                }).then((existingEntry) => {
-                    if (existingEntry) {
+                }).then((entry) => {
+                    if (entry) {
                         result = new ReturnObject(
-                            200, 
-                            {
+                            200, {
                                 'message': `You have successfully accessed 
                                             queue entry with the customer id
                                             of #${customerId} and the barber
                                             id of #${barberId}. The customer
                                             is in the queue`,
-                                'data': existingEntry
+                                'data': entry
                             }
                         )
                     } else {
                         result = new ReturnObject(
-                            200, 
-                            {
+                            200, {
                                 'message': `No queue entry with the customer
                                             id of #${customerId} and the 
                                             barber id of #${barberId} exist`,
@@ -40,34 +38,29 @@ async function queueEntryCheck(customerId, barberId) {
                             }
                         )
                     }
-                })
-            } catch (error) {
-                result = new ReturnObject(
-                    500, 
-                    {
-                        'message': `An error has occurred when trying to 
+                }).catch((err) => {
+                    result = new ReturnObject(
+                        500, {
+                            'message': `An error has occurred when trying to 
                                     access the queue entry with the customer
                                     id of #${customerId} and the barber id 
                                     of #${barberId}`
-                    }
-                )
-            }
-        } else {
-            result = new ReturnObject(
-                404, 
-                {
-                    'message': `This barber does not exist`
-                }
-            )
+                        }
+                    )
+                });
+                break;
+        
+            default:
+                result = res
+                break;
         }
     }).catch((err) => {
         result = new ReturnObject(
             500, 
             {
                 'message': `An error has occurred when trying to access the 
-                            queue entry with the customer id of 
-                            #${customerId} and the barber id of 
-                            #${barberId}`
+                            queue entry with the customer id of #${customerId} 
+                            and the barber id of #${barberId}`
             }
         )
     });
