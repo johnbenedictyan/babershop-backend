@@ -65,10 +65,9 @@ async function getUserById(barberId){
                 )
             } else {
                 result = new ReturnObject(
-                    500, 
+                    404, 
                     {
-                        'message': `An error has occurred when trying to access 
-                                    the barber with id #${barberId}`,
+                        'message': `This barber does not exist`,
                     }
                 )
             }
